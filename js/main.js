@@ -152,6 +152,7 @@ function goStep(n) {
 
 function submitForm() {
   // Collect all form data (for future Trello integration)
+  async function submitForm() {
   const formData = {
     nome: document.getElementById('mf_nome').value,
     telefone: document.getElementById('mf_tel').value,
@@ -166,6 +167,34 @@ function submitForm() {
     faria_sentido: document.getElementById('mf_metodo').value,
     motivo_diagnostico: document.getElementById('mf_motivo').value,
     situacao_especifica: document.getElementById('mf_situacao').value,
+  };
+
+  try {
+    const response = await fetch('https://webhook.fluq.com.br/webhook/diagnostico-callil', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Request failed');
+    }
+
+    const successStep = document.getElementById('stepSuccess');
+    const successMessage = successStep.querySelector('p');
+    if (successMessage) successMessage.textContent = 'Diagnóstico enviado com sucesso.';
+
+    document.querySelectorAll('.modal-step').forEach(s => s.classList.remove('active'));
+    successStep.classList.add('active');
+    document.getElementById('modalProgress').style.display = 'none';
+    document.querySelector('.modal-disclaimer').style.display = 'none';
+  } catch (error) {
+    alert('Erro ao enviar. Tente novamente.');
+  }
+}
+
   };
   console.log('Formulário enviado:', formData);
 
