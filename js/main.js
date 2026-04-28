@@ -1,5 +1,5 @@
 // Lenis Smooth Scroll
-const lenis = new Lenis({
+const lenis = typeof window.Lenis === 'function' ? new window.Lenis({
   duration: 1.2,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   direction: 'vertical',
@@ -7,16 +7,19 @@ const lenis = new Lenis({
   smooth: true,
   smoothTouch: false,
   touchMultiplier: 2,
-});
-function raf(time) {
-  lenis.raf(time);
+}) : null;
+if (lenis) {
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
   requestAnimationFrame(raf);
 }
-requestAnimationFrame(raf);
 
 // Smooth scroll for links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function(e) {
+    if (!lenis) return;
     e.preventDefault();
     const target = document.querySelector(this.getAttribute('href'));
     if (target) {
@@ -51,7 +54,7 @@ if (!isTouchDevice) {
     requestAnimationFrame(animateCursor);
   }
   animateCursor();
-  
+
   const clickables = document.querySelectorAll('a, button, .faq-trigger, .product-card, input');
   clickables.forEach(el => {
     el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
@@ -93,21 +96,23 @@ function toggleFaq(button) {
 // Navbar hide on scroll
 let lastScroll = 0;
 const navbar = document.getElementById('navbar');
-lenis.on('scroll', ({ scroll }) => {
-  if (scroll > lastScroll && scroll > 150) {
-    navbar.classList.add('hidden');
-  } else {
-    navbar.classList.remove('hidden');
-  }
-  lastScroll = scroll;
-});
+if (lenis && navbar) {
+  lenis.on('scroll', ({ scroll }) => {
+    if (scroll > lastScroll && scroll > 150) {
+      navbar.classList.add('hidden');
+    } else {
+      navbar.classList.remove('hidden');
+    }
+    lastScroll = scroll;
+  });
+}
 
 // Hero load animation
 window.addEventListener('load', () => {
   document.getElementById('hero').classList.add('loaded');
 });
 
-// ===== MODAL DIAGNÓSTICO =====
+// ===== MODAL DIAGNOSTICO =====
 const modalOverlay = document.getElementById('diagnosticoModal');
 const modalClose = document.getElementById('modalClose');
 let currentStep = 1;
@@ -150,9 +155,7 @@ function goStep(n) {
   if (box) box.scrollTop = 0;
 }
 
-function submitForm() {
-  // Collect all form data (for future Trello integration)
-  async function submitForm() {
+async function submitForm() {
   const formData = {
     nome: document.getElementById('mf_nome').value,
     telefone: document.getElementById('mf_tel').value,
@@ -195,17 +198,6 @@ function submitForm() {
   }
 }
 
-  };
-  console.log('Formulário enviado:', formData);
-
-  // Show success
-  document.querySelectorAll('.modal-step').forEach(s => s.classList.remove('active'));
-  document.getElementById('stepSuccess').classList.add('active');
-  // Hide progress + disclaimer on success
-  document.getElementById('modalProgress').style.display = 'none';
-  document.querySelector('.modal-disclaimer').style.display = 'none';
-}
-
 // Hook all CTA buttons that should open the diagnostic form
 document.querySelectorAll('[data-open-diagnostico], .nav-cta, .btn-primary').forEach(btn => {
   btn.addEventListener('click', function(e) {
@@ -218,3 +210,8 @@ document.querySelectorAll('[data-open-diagnostico], .nav-cta, .btn-primary').for
     }
   });
 });
+
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.goStep = goStep;
+window.submitForm = submitForm;
