@@ -1,4 +1,3 @@
-// Lenis Smooth Scroll
 const lenis = typeof window.Lenis === 'function' ? new window.Lenis({
   duration: 1.2,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -8,6 +7,7 @@ const lenis = typeof window.Lenis === 'function' ? new window.Lenis({
   smoothTouch: false,
   touchMultiplier: 2,
 }) : null;
+
 if (lenis) {
   function raf(time) {
     lenis.raf(time);
@@ -16,7 +16,6 @@ if (lenis) {
   requestAnimationFrame(raf);
 }
 
-// Smooth scroll for links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function(e) {
     if (!lenis) return;
@@ -32,7 +31,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
-// Custom Cursor
 const cursor = document.querySelector('.cursor');
 const follower = document.querySelector('.cursor-follower');
 let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
@@ -66,7 +64,6 @@ if (!isTouchDevice) {
   document.body.style.cursor = 'auto';
 }
 
-// Magnetic buttons
 document.querySelectorAll('[data-magnetic]').forEach(el => {
   el.addEventListener('mousemove', (e) => {
     const rect = el.getBoundingClientRect();
@@ -79,7 +76,6 @@ document.querySelectorAll('[data-magnetic]').forEach(el => {
   });
 });
 
-// FAQ Accordion
 function toggleFaq(button) {
   const item = button.parentElement;
   const isActive = item.classList.contains('active');
@@ -93,9 +89,9 @@ function toggleFaq(button) {
   }
 }
 
-// Navbar hide on scroll
 let lastScroll = 0;
 const navbar = document.getElementById('navbar');
+
 if (lenis && navbar) {
   lenis.on('scroll', ({ scroll }) => {
     if (scroll > lastScroll && scroll > 150) {
@@ -107,16 +103,13 @@ if (lenis && navbar) {
   });
 }
 
-// Hero load animation
 window.addEventListener('load', () => {
   document.getElementById('hero').classList.add('loaded');
 });
 
-// ===== MODAL DIAGNOSTICO =====
 const modalOverlay = document.getElementById('diagnosticoModal');
 const modalClose = document.getElementById('modalClose');
 let currentStep = 1;
-const totalSteps = 4;
 
 function openModal() {
   modalOverlay.classList.add('open');
@@ -138,19 +131,16 @@ document.addEventListener('keydown', (e) => {
 });
 
 function goStep(n) {
-  // Hide all steps
   document.querySelectorAll('.modal-step').forEach(s => s.classList.remove('active'));
-  // Show target step
   const target = document.getElementById('step' + n) || document.getElementById('stepSuccess');
   if (target) target.classList.add('active');
   currentStep = n;
 
-  // Update progress dots
   const dots = document.querySelectorAll('.modal-progress-dot');
   dots.forEach((dot, i) => {
     dot.classList.toggle('active', i < n);
   });
-  // Scroll modal to top
+
   const box = document.querySelector('.modal-box');
   if (box) box.scrollTop = 0;
 }
@@ -198,10 +188,8 @@ async function submitForm() {
   }
 }
 
-// Hook all CTA buttons that should open the diagnostic form
 document.querySelectorAll('[data-open-diagnostico], .nav-cta, .btn-primary').forEach(btn => {
   btn.addEventListener('click', function(e) {
-    // Only intercept internal # links for specific buttons
     const href = this.getAttribute('href') || '';
     if (href === '#contato' || this.classList.contains('btn-primary') || this.dataset.openDiagnostico !== undefined) {
       e.preventDefault();
